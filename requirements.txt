@@ -3,6 +3,8 @@ uvicorn
 pydantic
 langchain
 langchain_community
+langchain-huggingface
+langchain-chroma
 chromadb
 pypdf
 httpx

@@ -1,6 +1,6 @@
 import uuid
 import logging
-from typing import Dict
+from typing import Dict, Any
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
