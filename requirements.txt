@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+pydantic
+langchain
+langchain_community
+chromadb
+pypdf
+httpx
+python-multipart
+websockets

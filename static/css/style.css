@@ -1,0 +1,84 @@
+:root {
+    --bg-color: #0F0F12;
+    --card-bg: rgba(30, 30, 40, 0.6);
+    --accent-color: #6366F1;
+    --text-primary: #E2E8F0;
+    --text-secondary: #94A3B8;
+    --border-color: rgba(255, 255, 255, 0.1);
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    font-family: 'Outfit', sans-serif;
+}
+
+.glass-effect {
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+}
+
+.text-accent {
+    color: var(--accent-color) !important;
+}
+
+.app-header {
+    background: rgba(15, 15, 18, 0.8);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+/* Chat Styles (from existing index) */
+.chat-panel {
+    height: calc(100vh - 80px); /* Adjust based on header/footer */
+}
+.chat-messages {
+    overflow-y: auto;
+    padding: 20px;
+}
+.message-bubble {
+    max-width: 80%;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-radius: 12px;
+}
+.user-msg {
+    background: var(--accent-color);
+    color: white;
+    margin-left: auto;
+}
+.ai-msg {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    margin-right: auto;
+}
+
+/* Dashboard Specifics */
+.bmc-card {
+    background: rgba(30, 30, 40, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    transition: transform 0.2s;
+}
+.bmc-card:hover {
+    transform: translateY(-2px);
+    background: rgba(30, 30, 40, 0.6);
+}
+.alert {
+    border-radius: 12px;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-color);
+}
+::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 4px;
+}
