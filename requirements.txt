@@ -11,3 +11,4 @@ websockets
 pyngrok
 nest_asyncio
 sentence-transformers
+langchain-text-splitters
