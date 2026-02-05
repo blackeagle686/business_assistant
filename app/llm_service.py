@@ -210,24 +210,55 @@ Return ONLY a JSON array:
         )
 
         prompt = f"""
-Create a detailed business plan in JSON.
-
-Idea:
-{idea_text}
-
-Clarifications:
-{context_str}
-
-Market Data:
-{rag_context}
-
-Return ONLY valid JSON.
-"""
+        You are a business expert. Generate a Business Plan for the idea: "{idea_text}" in JSON format.
+        
+        Context: {context_str}
+        Market Data: {rag_context}
+        
+        Strictly follow this JSON structure. Do not output markdown, just the JSON object:
+        {{
+            "executive_summary": "A brief summary of the business...",
+            "market_analysis": {{
+                "market_size": "Estimate of market value...",
+                "growth_trends": ["trend 1", "trend 2"],
+                "competitors": ["comp 1", "comp 2"],
+                "opportunities": ["opp 1"],
+                "risks": ["risk 1"],
+                "relevant_use_cases": ["case 1"]
+            }},
+            "business_model": {{
+                "value_proposition": ["prop 1"],
+                "customer_segments": ["seg 1"],
+                "revenue_streams": ["stream 1"],
+                "cost_structure": ["cost 1"],
+                "key_activities": ["act 1"],
+                "key_resources": ["res 1"],
+                "key_partners": ["partner 1"],
+                "channels": ["channel 1"],
+                "customer_relationships": ["rel 1"]
+            }},
+            "kpis": [
+                {{
+                    "name": "Revenue Growth",
+                    "description": "Monthly growth rate",
+                    "formula": "(Rev - LastRev)/LastRev",
+                    "importance": "High",
+                    "frequency": "Monthly"
+                }}
+            ],
+            "assumptions_constraints": ["assume stable economy"],
+            "recommendations": "Start small and validate."
+        }}
+        """
 
         response = await self._generate(
             prompt,
             system_prompt="You are a JSON-speaking business expert.",
         )
+        
+        logger.info(f"--------------------------------------------------")
+        logger.info(f"Raw LLM Response (First 500 chars): {response[:500]}...")
+        logger.info(f"--------------------------------------------------")
 
         if response.startswith("Error"):
             return self._create_fallback_plan(response)
