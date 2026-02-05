@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,16 +8,19 @@
     <!-- Same fonts and styles as index -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link href="/static/css/style.css" rel="stylesheet">
-    
+
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Markdown Parser -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
+
 <body>
 
     <!-- Header -->
@@ -25,9 +29,14 @@
             <div class="container-fluid">
                 <div class="d-flex align-items-center gap-2">
                     <i class="bi bi-briefcase fs-4" style="color: var(--accent-color);"></i>
-                    <span class="navbar-brand mb-0">BizMaster AI</span>
+                    <span class="navbar-brand mb-0">Business Assistant</span>
                 </div>
-                 <a href="/" class="btn btn-outline-secondary btn-sm">New Idea</a>
+                <div class="d-flex align-items-center gap-2">
+                    <button id="theme-toggle" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-sun"></i>
+                    </button>
+                    <a href="/" class="btn btn-outline-secondary btn-sm">New Idea</a>
+                </div>
             </div>
         </nav>
     </header>
@@ -39,14 +48,14 @@
         </div>
 
         <div id="dashboard-content" class="d-none">
-            
+
             <!-- Executive Summary -->
             <div class="row mb-4">
                 <div class="col-12">
                     <div class="card glass-effect border-0">
                         <div class="card-body">
                             <h2 class="h4 card-title text-accent mb-3">Executive Summary</h2>
-                            <div id="exec-summary" class="text-light"></div>
+                            <div id="exec-summary"></div>
                         </div>
                     </div>
                 </div>
@@ -66,7 +75,7 @@
                     <div class="bmc-card h-100 p-3 border rounded">
                         <h6 class="text-info"><i class="bi bi-list-check"></i> Key Activities</h6>
                         <ul id="bmc-activities" class="list-unstyled small mb-3"></ul>
-                        
+
                         <h6 class="text-info"><i class="bi bi-box-seam"></i> Key Resources</h6>
                         <ul id="bmc-resources" class="list-unstyled small"></ul>
                     </div>
@@ -81,7 +90,7 @@
                     <div class="bmc-card h-100 p-3 border rounded">
                         <h6 class="text-info"><i class="bi bi-heart"></i> Relationships</h6>
                         <ul id="bmc-relationships" class="list-unstyled small mb-3"></ul>
-                        
+
                         <h6 class="text-info"><i class="bi bi-megaphone"></i> Channels</h6>
                         <ul id="bmc-channels" class="list-unstyled small"></ul>
                     </div>
@@ -96,13 +105,13 @@
                 <div class="col-md-6">
                     <div class="bmc-card h-100 p-3 border rounded">
                         <h6 class="text-danger"><i class="bi bi-wallet2"></i> Cost Structure</h6>
-                         <ul id="bmc-costs" class="list-unstyled small"></ul>
+                        <ul id="bmc-costs" class="list-unstyled small"></ul>
                     </div>
                 </div>
-                 <div class="col-md-6">
+                <div class="col-md-6">
                     <div class="bmc-card h-100 p-3 border rounded">
                         <h6 class="text-success"><i class="bi bi-cash-coin"></i> Revenue Streams</h6>
-                         <ul id="bmc-revenue" class="list-unstyled small"></ul>
+                        <ul id="bmc-revenue" class="list-unstyled small"></ul>
                     </div>
                 </div>
             </div>
@@ -115,16 +124,16 @@
                             <h5 class="card-title text-accent">Market Analysis</h5>
                         </div>
                         <div class="card-body">
-                             <div id="market-analysis-text" class="mb-3 small"></div>
-                             <!-- Placeholder for a dynamic chart if data allowed it, 
+                            <div id="market-analysis-text" class="mb-3 small"></div>
+                            <!-- Placeholder for a dynamic chart if data allowed it, 
                                   for now we visualize growth trends if numerical, else list -->
-                             <ul id="market-stats" class="list-group list-group-flush bg-transparent"></ul>
+                            <ul id="market-stats" class="list-group list-group-flush bg-transparent"></ul>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="card glass-effect h-100 border-0">
-                         <div class="card-header bg-transparent border-0">
+                        <div class="card-header bg-transparent border-0">
                             <h5 class="card-title text-accent">Key KPIs</h5>
                         </div>
                         <div class="card-body" id="kpi-container">
@@ -136,16 +145,16 @@
 
             <!-- Risks & Recommendations -->
             <div class="row g-4">
-                 <div class="col-md-6">
-                    <div class="alert alert-warning border-0 glass-effect text-light" role="alert">
+                <div class="col-md-6">
+                    <div class="alert alert-warning border-0 glass-effect" role="alert">
                         <h5 class="alert-heading"><i class="bi bi-exclamation-triangle"></i> Risks</h5>
                         <ul id="risk-list" class="mb-0 small"></ul>
                     </div>
                 </div>
-                 <div class="col-md-6">
-                    <div class="alert alert-info border-0 glass-effect text-light" role="alert">
-                         <h5 class="alert-heading"><i class="bi bi-lightbulb"></i> Recommendations</h5>
-                         <p id="recommendations-text" class="mb-0 small"></p>
+                <div class="col-md-6">
+                    <div class="alert alert-info border-0 glass-effect" role="alert">
+                        <h5 class="alert-heading"><i class="bi bi-lightbulb"></i> Recommendations</h5>
+                        <p id="recommendations-text" class="mb-0 small"></p>
                     </div>
                 </div>
             </div>
@@ -155,4 +164,5 @@
 
     <script src="/static/js/dashboard.js"></script>
 </body>
+
 </html>

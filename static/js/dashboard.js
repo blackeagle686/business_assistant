@@ -59,7 +59,7 @@ function renderDashboard(data) {
         const div = document.createElement('div');
         div.className = 'mb-3 pb-2 border-bottom border-secondary';
         div.innerHTML = `
-            <h6 class="text-light">${kpi.name}</h6>
+            <h6 class="fw-bold">${kpi.name}</h6>
             <p class="small text-muted mb-1">${kpi.description}</p>
             <div class="d-flex justify-content-between small">
                 <span class="text-info">Freq: ${kpi.frequency}</span>
@@ -74,8 +74,34 @@ function renderDashboard(data) {
     document.getElementById('recommendations-text').innerHTML = marked.parse(plan.recommendations);
 }
 
-function populateList(elementId, items) {
-    const el = document.getElementById(elementId);
-    if (!el || !items) return;
-    el.innerHTML = items.map(item => `<li>${item}</li>`).join('');
+if (!el || !items) return;
+el.innerHTML = items.map(item => `<li>${item}</li>`).join('');
+}
+
+// Theme Toggling
+const themeToggleBtn = document.getElementById('theme-toggle');
+const htmlElement = document.documentElement;
+
+// Check saved theme
+const savedTheme = localStorage.getItem('theme') || 'dark';
+htmlElement.setAttribute('data-theme', savedTheme);
+updateThemeIcon(savedTheme);
+
+themeToggleBtn.addEventListener('click', () => {
+    const currentTheme = htmlElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    htmlElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    updateThemeIcon(newTheme);
+});
+
+function updateThemeIcon(theme) {
+    const icon = themeToggleBtn.querySelector('i');
+    if (theme === 'dark') {
+        icon.classList.remove('bi-moon-stars');
+        icon.classList.add('bi-sun');
+    } else {
+        icon.classList.remove('bi-sun');
+        icon.classList.add('bi-moon-stars');
+    }
 }
