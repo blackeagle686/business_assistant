@@ -169,3 +169,31 @@ messageInput.addEventListener('keypress', (e) => {
         sendMessage();
     }
 });
+
+// Theme Toggling
+const themeToggleBtn = document.getElementById('theme-toggle');
+const htmlElement = document.documentElement;
+
+// Check saved theme
+const savedTheme = localStorage.getItem('theme') || 'dark';
+htmlElement.setAttribute('data-theme', savedTheme);
+updateThemeIcon(savedTheme);
+
+themeToggleBtn.addEventListener('click', () => {
+    const currentTheme = htmlElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    htmlElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    updateThemeIcon(newTheme);
+});
+
+function updateThemeIcon(theme) {
+    const icon = themeToggleBtn.querySelector('i');
+    if (theme === 'dark') {
+        icon.classList.remove('bi-moon-stars');
+        icon.classList.add('bi-sun');
+    } else {
+        icon.classList.remove('bi-sun');
+        icon.classList.add('bi-moon-stars');
+    }
+}

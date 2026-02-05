@@ -1,18 +1,31 @@
 :root {
+    /* Dark Mode Defaults */
     --bg-color: #0F0F12;
     --card-bg: rgba(30, 30, 40, 0.6);
     --accent-color: #6366F1;
     --accent-hover: #4F46E5;
     --text-primary: #E2E8F0;
-    --text-secondary: #94A3B8;
+    --text-secondary: #CBD5E1;
+    /* Lighter in dark mode (was #94A3B8) */
     --border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="light"] {
+    --bg-color: #F8FAFC;
+    --card-bg: rgba(255, 255, 255, 0.7);
+    --accent-color: #4F46E5;
+    --accent-hover: #4338CA;
+    --text-primary: #1E293B;
+    --text-secondary: #475569;
+    /* Darker in light mode */
+    --border-color: rgba(0, 0, 0, 0.1);
 }
 
 body {
     background-color: var(--bg-color);
     color: var(--text-primary);
     font-family: 'Outfit', sans-serif;
-    /* subtle gradient mesh background */
+    /* refined gradient mesh background */
     background-image:
         radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.08) 0%, transparent 25%),
         radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.08) 0%, transparent 25%);
@@ -33,7 +46,7 @@ body {
 }
 
 .app-header {
-    background: rgba(15, 15, 18, 0.7);
+    background: var(--card-bg);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border-color);
