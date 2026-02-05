@@ -194,6 +194,12 @@ class LLMClient:
         
         response = await self._generate(prompt, system_prompt="You are a JSON-speaking business expert. Do not output markdown, just JSON.")
         
+        # Check for connection errors first
+        if response.startswith("Error"):
+            logger.error(f"LLM Generation Error: {response}")
+            # Return a graceful error plan
+            return self._create_fallback_plan(error_message=response)
+
         import re
         
         try:
@@ -203,7 +209,10 @@ class LLMClient:
             
             if "}" in json_str:
                 json_str = json_str[:json_str.rfind("}")+1] # basic trim
-                
+            
+            if not json_str:
+                raise ValueError("Empty JSON string received from LLM")
+
             data = json.loads(json_str)
             
             # Sanitize to prevent crashes
@@ -213,6 +222,13 @@ class LLMClient:
                 
         except Exception as e:
             logger.error(f"Plan Generation Failed: {e}\nResponse: {response}")
-            raise e
+            return self._create_fallback_plan(error_message=f"Parsing Error: {str(e)}")
+
+    def _create_fallback_plan(self, error_message: str) -> BusinessPlan:
+        """Create a valid but empty BusinessPlan object to prevent 500 errors."""
+        empty_data = self._sanitize_plan_data({})
+        empty_data["executive_summary"] = f"Plan generation failed. System Message: {error_message}. Please check your connection to Ollama or try again."
+        empty_data["recommendations"] = "Ensure Ollama is running (default: http://localhost:11434)."
+        return BusinessPlan(**empty_data)
 
 llm_client = LLMClient()
