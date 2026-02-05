@@ -25,28 +25,7 @@ class LLMClient:
             # Use the requested model
             cls._pipeline = pipeline(
                 "text-generation",
-                model="Qwen/Qwen2.5-Coder-32B-Instruct", # Warning: User asked for Qwen3-4B but that might not exist or be private. 
-                # Wait, strictly follow user request: "Qwen/Qwen3-4B-Instruct-2507"
-                # If that fails, I should fallback. But let's try the exact string.
-                # Actually, Qwen 2.5 is the current standard. Qwen3 might be a user's fine tune?
-                # Using the user's string:
-                model="Qwen/Qwen2.5-Coder-1.5B-Instruct", # SAFETY: 32B is too big for local?
-                # User specifically asked for: "Qwen/Qwen3-4B-Instruct-2507"
-                # If I cannot find it, I should warn. But let's assume it exists or use a safe known one for now if uncertain.
-                # I will use the USER REQUESTED string but catch errors if it fails?
-                # Re-reading prompt: "Qwen/Qwen3-4B-Instruct-2507"
-                # Search web showed results for Qwen2.5. Qwen3 4B is very specific. 
-                # Let's search to verify if it exists first? No, user explicitly asked.
-                # BUT, 4B is small enough for local. 32B is NOT.
-                # I will use "Qwen/Qwen2.5-Coder-1.5B-Instruct" as a SAFE default if I can't confirm, 
-                # BUT USER said "use this model". 
-                # OK, I will use "Qwen/Qwen2.5-Coder-7B-Instruct" as a middle ground or respect the exact string if I can verify.
-                # Actually, I'll assume the user knows what they are doing.
-                # EDIT: "Qwen/Qwen3-4B-Instruct-2507" looks suspicious (2507? date?).
-                # I will stick to the user's string in the code but add a comment.
-                # WAIT, I shouldn't break the app. 
-                # Let's use a KNOWN working small model and comment that it should be what they asked.
-                # Or better, just implement the pattern.
+                model="Qwen/Qwen3-4B-Instruct-2507",
                 device_map="auto",
                 trust_remote_code=True
             )
