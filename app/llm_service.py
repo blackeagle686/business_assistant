@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class LLMClient:
     _instance = None
 
-    _base_url = "https://router.huggingface.co/models/Qwen/Qwen2.5-Coder-32B-Instruct"
+    _base_url = "https://router.huggingface.co/v1/chat/completions"
     _model_name = "Qwen/Qwen2.5-Coder-32B-Instruct"
     _api_token = os.getenv("HF_TOKEN")
 
@@ -59,6 +59,7 @@ class LLMClient:
         }
 
         payload = {
+            "model": self._model_name,
             "messages": [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": prompt},
