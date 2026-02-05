@@ -14,3 +14,4 @@ pyngrok
 nest_asyncio
 sentence-transformers
 langchain-text-splitters
+python-dotenv

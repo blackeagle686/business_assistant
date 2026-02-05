@@ -1,6 +1,7 @@
 import httpx
 import json
 import logging
+import os
 from typing import List, Dict, Any, Optional
 from app.schemas import ClarificationQuestion, BusinessPlan, BusinessModelCanvas, KPI, MarketAnalysis
 
@@ -8,40 +9,64 @@ logger = logging.getLogger(__name__)
 
 class LLMClient:
     _instance = None
-    _base_url = "http://localhost:11434/api/generate"  # Default Ollama
-    _model_name = "qwen2.5-coder:1.5b" # Default, can be overridden
+    _base_url = "https://api-inference.huggingface.co/models/Qwen/Qwen2.5-Coder-32B-Instruct" 
+    _model_name = "Qwen/Qwen2.5-Coder-32B-Instruct" 
+    _api_token = os.getenv("HF_TOKEN")
 
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(LLMClient, cls).__new__(cls)
-            logger.info("LLMClient Singleton Initialized")
+            logger.info("LLMClient Singleton Initialized with Hugging Face API")
         return cls._instance
 
-    def set_config(self, base_url: str, model_name: str):
+    def set_config(self, base_url: str, model_name: str, api_token: Optional[str] = None):
         self._base_url = base_url
         self._model_name = model_name
+        if api_token:
+            self._api_token = api_token
 
     async def _generate(self, prompt: str, system_prompt: str = "You are a helpful business consultant AI.") -> str:
-        """Helper to call local LLM API"""
+        """Helper to call Hugging Face Inference API"""
+        
+        headers = {
+            "Authorization": f"Bearer {self._api_token}",
+            "Content-Type": "application/json"
+        }
+        
+        # HF API Payload structure
         payload = {
-            "model": self._model_name,
-            "prompt": f"{system_prompt}\n\nUser: {prompt}\n\nAssistant:",
-            "stream": False,
-            "options": {
+            "inputs": f"<|im_start|>system\n{system_prompt}<|im_end|>\n<|im_start|>user\n{prompt}<|im_end|>\n<|im_start|>assistant\n",
+            "parameters": {
+                "max_new_tokens": 1500,
                 "temperature": 0.7,
-                "num_ctx": 4096 
+                "return_full_text": False
             }
         }
         
         try:
             async with httpx.AsyncClient(timeout=120.0) as client:
-                response = await client.post(self._base_url, json=payload)
+                response = await client.post(self._base_url, headers=headers, json=payload)
+                
+                if response.status_code == 503:
+                     # Model loading
+                     return "Error: Model is currently loading on Hugging Face. Please try again in 20 seconds."
+                
                 response.raise_for_status()
+                
+                # HF returns a list of dicts [{"generated_text": "..."}]
                 data = response.json()
-                return data.get("response", "")
+                if isinstance(data, list) and len(data) > 0:
+                    return data[0].get("generated_text", "").strip()
+                elif isinstance(data, dict) and "error" in data:
+                     return f"Error from HF: {data['error']}"
+                return ""
+                
         except httpx.RequestError as e:
             logger.error(f"LLM Connection Failed: {e}")
             return f"Error communicating with LLM: {str(e)}"
+        except httpx.HTTPStatusError as e:
+            logger.error(f"LLM API Error: {e.response.text}")
+            return f"Error communicating with LLM: {e.response.status_code} {e.response.text}"
 
     async def generate_clarification_questions(self, idea_text: str) -> List[ClarificationQuestion]:
         prompt = f"""

@@ -58,6 +58,10 @@ class RAGService:
                 a vector store.
         """
         self.persist_directory = persist_directory
+        # Inject Token for Hugging Face Embeddings
+        if os.getenv("HF_TOKEN"):
+            os.environ["HUGGINGFACEHUB_API_TOKEN"] = os.environ.get("HF_TOKEN")
+        
         self.embedding_function = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
         self.vector_store = Chroma(
             persist_directory=persist_directory,
@@ -120,7 +124,6 @@ class RAGService:
             for batch in batched(splits, MAX_BATCH):
                 try:
                     self.vector_store.add_documents(batch)
-                    self.vector_store.persist()
                     logger.info(f"Ingested {len(splits)} chunks from {len(files)} files.")
                 except Exception as e:
                     print(f"Failed batch: {e}")

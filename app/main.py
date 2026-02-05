@@ -10,6 +10,10 @@ from app.schemas import (
     IdeaInput, ClarificationQuestion, ClarificationResponse, 
     DashboardData, BusinessPlan
 )
+from dotenv import load_dotenv
+
+load_dotenv() # Load environment variables
+
 from app.llm_service import llm_client
 from app.rag import rag_service
 
