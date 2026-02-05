@@ -9,8 +9,8 @@ logger = logging.getLogger(__name__)
 
 class LLMClient:
     _instance = None
-    _base_url = "https://api-inference.huggingface.co/models/Qwen/Qwen2.5-Coder-32B-Instruct" 
-    _model_name = "Qwen/Qwen2.5-Coder-32B-Instruct" 
+    _base_url = "https://router.huggingface.co/models/Qwen/Qwen2.5-Coder-32B-Instruct" 
+    _model_name = "Qwen/Qwen2.5-Coder-32B-Instruct"  
     _api_token = os.getenv("HF_TOKEN")
 
     def __new__(cls):
