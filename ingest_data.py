@@ -2,7 +2,7 @@ import asyncio
 from app.rag import rag_service
 import os
 
-DATA_DIR = "/home/tlk/Documents/Projects/my_AItools/bussins_advice/data"
+DATA_DIR = "/content/business_assistant/data"
 
 def main():
     print(f"Starting ingestion from {DATA_DIR}...")

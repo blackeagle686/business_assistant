@@ -49,17 +49,38 @@ class LLMClient:
         
         Identify 3-5 critical missing pieces of information needed to build a viable business plan.
         Return ONLY a JSON array of objects with keys: "id" (string), "text" (string question).
-        Example: [{{"id": "q1", "text": "Who is the target audience?"}}]
+        
+        Example format:
+        [
+            {{"id": "q1", "text": "Who is the target audience?"}},
+            {{"id": "q2", "text": "What is your initial budget?"}}
+        ]
+        
+        Do not include any explanation, markdown formatting, or introductory text. Just the JSON array.
         """
-        response = await self._generate(prompt, system_prompt="You are a strict JSON generator.")
+        response = await self._generate(prompt, system_prompt="You are a strict JSON generator. Output only valid JSON.")
+        
+        import re
+        
         try:
-            # simple cleanup if md code blocks are returned
-            cleaned = response.replace("```json", "").replace("```", "").strip()
-            data = json.loads(cleaned)
-            return [ClarificationQuestion(question_id=item['id'], question_text=item['text']) for item in data]
-        except json.JSONDecodeError:
-            logger.error(f"Failed to parse LLM response: {response}")
-            return []
+            # Regex to find a JSON array pattern
+            match = re.search(r'\[.*\]', response, re.DOTALL)
+            if match:
+                json_str = match.group(0)
+                data = json.loads(json_str)
+                return [ClarificationQuestion(question_id=item['id'], question_text=item['text']) for item in data]
+            else:
+                # Fallback: try cleaning standard markdown code blocks if regex failed (unlikely for array)
+                cleaned = response.replace("```json", "").replace("```", "").strip()
+                data = json.loads(cleaned)
+                return [ClarificationQuestion(question_id=item['id'], question_text=item['text']) for item in data]
+        except (json.JSONDecodeError, AttributeError, KeyError) as e:
+            logger.error(f"Failed to parse LLM response: {response} | Error: {e}")
+            # Fallback questions if LLM fails completely
+            return [
+                ClarificationQuestion(question_id="default_1", question_text="Can you describe your target customer in more detail?"),
+                ClarificationQuestion(question_id="default_2", question_text="What is your primary revenue model?")
+            ]
 
     async def generate_business_plan(self, idea_text: str, clarifications: Dict[str, str], rag_context: str) -> BusinessPlan:
         
@@ -112,17 +133,27 @@ class LLMClient:
         
         response = await self._generate(prompt, system_prompt="You are a JSON-speaking business expert. Do not output markdown, just JSON.")
         
+        import re
+        
         try:
-            cleaned = response.replace("```json", "").replace("```", "").strip()
-            # Handle potential trailing text
-            if "}" in cleaned:
-                cleaned = cleaned[:cleaned.rfind("}")+1]
+            # Regex to find the main JSON object
+            match = re.search(r'\{.*\}', response, re.DOTALL)
+            if match:
+                json_str = match.group(0)
+                # Attempt to fix common Trailing comma issues if simple load fails? 
+                # For now, just trust the match is reasonably good or use a tolerant parser if available.
+                data = json.loads(json_str)
+                return BusinessPlan(**data)
+            else:
+                # Fallback clean
+                cleaned = response.replace("```json", "").replace("```", "").strip()
+                if "}" in cleaned:
+                    cleaned = cleaned[:cleaned.rfind("}")+1]
+                data = json.loads(cleaned)
+                return BusinessPlan(**data)
                 
-            data = json.loads(cleaned)
-            return BusinessPlan(**data)
         except Exception as e:
             logger.error(f"Plan Generation Failed: {e}\nResponse: {response}")
-            # Fallback empty plan or re-raise
             raise e
 
 llm_client = LLMClient()

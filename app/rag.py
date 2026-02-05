@@ -134,4 +134,4 @@ class RAGService:
         context = "\n\n".join([f"Source: {doc.metadata.get('source', 'unknown')}\nContent: {doc.page_content}" for doc in results])
         return context
 
-rag_service = RAGService(persist_directory="/home/tlk/Documents/Projects/my_AItools/bussins_advice/chroma_db")
+rag_service = RAGService(persist_directory="/content/business_assistant/chroma_db")
