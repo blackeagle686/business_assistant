@@ -8,6 +8,21 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 logger = logging.getLogger(__name__)
 
+# singleton instance of RAGService for use across the app
+IS_EMBEDDINGS_LOADED = False
+class EmbbedingLoader:
+    def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
+        self.embedding_function = HuggingFaceEmbeddings(model_name=model_name)
+
+    def load_embeddings(self, documents: List[str]):
+        """Convert documents to embeddings."""
+        global IS_EMBEDDINGS_LOADED
+        if IS_EMBEDDINGS_LOADED:
+            logger.info("Embeddings already loaded, skipping.")
+            return
+        IS_EMBEDDINGS_LOADED = True
+        return self.embedding_function.embed_documents(documents)
+
 class RAGService:
     def __init__(self, persist_directory: str = "chroma_db"):
         self.persist_directory = persist_directory
@@ -26,6 +41,10 @@ class RAGService:
         documents = []
         files = [f for f in os.listdir(directory_path) if f.endswith(".pdf")]
         
+        for f in files:
+            print('-----------------------------------')
+            print(f"Found file: {f}")
+            
         logger.info(f"Found {len(files)} PDFs to ingest.")
         
         for file in files:
