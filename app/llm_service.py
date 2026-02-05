@@ -82,52 +82,113 @@ class LLMClient:
                 ClarificationQuestion(question_id="default_2", question_text="What is your primary revenue model?")
             ]
 
+    def _sanitize_plan_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Ensure all required fields for BusinessPlan exist, filling defaults if missing."""
+        
+        # Default structures
+        default_market = {
+            "market_size": "Unknown",
+            "growth_trends": [],
+            "competitors": [],
+            "opportunities": [],
+            "risks": [],
+            "relevant_use_cases": []
+        }
+        
+        default_bmc = {
+            "value_proposition": [],
+            "customer_segments": [],
+            "revenue_streams": [],
+            "cost_structure": [],
+            "key_activities": [],
+            "key_resources": [],
+            "key_partners": [],
+            "channels": [],
+            "customer_relationships": []
+        }
+        
+        # Ensure top level fields
+        data.setdefault("executive_summary", "Detailed plan generation incomplete.")
+        data.setdefault("recommendations", "Review inputs and try again.")
+        data.setdefault("assumptions_constraints", [])
+        
+        # Ensure Nested Models
+        if "market_analysis" not in data or not isinstance(data["market_analysis"], dict):
+            data["market_analysis"] = default_market
+        else:
+            # fill missing keys in nested dict
+            for k, v in default_market.items():
+                data["market_analysis"].setdefault(k, v)
+                
+        if "business_model" not in data or not isinstance(data["business_model"], dict):
+            data["business_model"] = default_bmc
+        else:
+            for k, v in default_bmc.items():
+                data["business_model"].setdefault(k, v)
+        
+        # KPIs - tricky because it's a list of objects.
+        # If it's not a list, make it empty.
+        if "kpis" not in data or not isinstance(data["kpis"], list):
+            data["kpis"] = []
+        else:
+            # Filter out invalid KPIs or try to fix them?
+            valid_kpis = []
+            for item in data["kpis"]:
+                if isinstance(item, dict) and "name" in item:
+                    # ensure other fields exist
+                    item.setdefault("description", "")
+                    item.setdefault("formula", "")
+                    item.setdefault("importance", "Medium")
+                    item.setdefault("frequency", "Monthly")
+                    valid_kpis.append(item)
+            data["kpis"] = valid_kpis
+            
+        return data
+
     async def generate_business_plan(self, idea_text: str, clarifications: Dict[str, str], rag_context: str) -> BusinessPlan:
         
         context_str = "\n".join([f"Q: {q} A: {a}" for q, a in clarifications.items()])
         
         prompt = f"""
-        Act as an expert business consultant. Create a detailed Business Plan for the following idea:
+        Act as an expert business consultant. Create a detailed Business Plan.
         
         Idea: {idea_text}
-        Additional Context: {context_str}
+        Context: {context_str}
+        Market Data: {rag_context}
         
-        Market Research Insights (incorporate these):
-        {rag_context}
-        
-        Output valid JSON with the following structure exactly:
+        Output valid JSON with strictly this structure:
         {{
-            "executive_summary": "...",
+            "executive_summary": "string",
             "market_analysis": {{
-                "market_size": "...",
-                "growth_trends": ["..."],
-                "competitors": ["..."],
-                "opportunities": ["..."],
-                "risks": ["..."],
-                "relevant_use_cases": ["..."]
+                "market_size": "string",
+                "growth_trends": ["string", ...],
+                "competitors": ["string", ...],
+                "opportunities": ["string", ...],
+                "risks": ["string", ...],
+                "relevant_use_cases": ["string", ...]
             }},
             "business_model": {{
-                "value_proposition": ["..."],
-                "customer_segments": ["..."],
-                "revenue_streams": ["..."],
-                "cost_structure": ["..."],
-                "key_activities": ["..."],
-                "key_resources": ["..."],
-                "key_partners": ["..."],
-                "channels": ["..."],
-                "customer_relationships": ["..."]
+                "value_proposition": ["string"],
+                "customer_segments": ["string"],
+                "revenue_streams": ["string"],
+                "cost_structure": ["string"],
+                "key_activities": ["string"],
+                "key_resources": ["string"],
+                "key_partners": ["string"],
+                "channels": ["string"],
+                "customer_relationships": ["string"]
             }},
             "kpis": [
                 {{
-                    "name": "...",
-                    "description": "...",
-                    "formula": "...",
-                    "importance": "...",
-                    "frequency": "..."
+                    "name": "string",
+                    "description": "string",
+                    "formula": "string",
+                    "importance": "string",
+                    "frequency": "string"
                 }}
             ],
-            "assumptions_constraints": ["..."],
-            "recommendations": "..."
+            "assumptions_constraints": ["string"],
+            "recommendations": "string"
         }}
         """
         
@@ -138,19 +199,17 @@ class LLMClient:
         try:
             # Regex to find the main JSON object
             match = re.search(r'\{.*\}', response, re.DOTALL)
-            if match:
-                json_str = match.group(0)
-                # Attempt to fix common Trailing comma issues if simple load fails? 
-                # For now, just trust the match is reasonably good or use a tolerant parser if available.
-                data = json.loads(json_str)
-                return BusinessPlan(**data)
-            else:
-                # Fallback clean
-                cleaned = response.replace("```json", "").replace("```", "").strip()
-                if "}" in cleaned:
-                    cleaned = cleaned[:cleaned.rfind("}")+1]
-                data = json.loads(cleaned)
-                return BusinessPlan(**data)
+            json_str = match.group(0) if match else response.replace("```json", "").replace("```", "").strip()
+            
+            if "}" in json_str:
+                json_str = json_str[:json_str.rfind("}")+1] # basic trim
+                
+            data = json.loads(json_str)
+            
+            # Sanitize to prevent crashes
+            clean_data = self._sanitize_plan_data(data)
+            
+            return BusinessPlan(**clean_data)
                 
         except Exception as e:
             logger.error(f"Plan Generation Failed: {e}\nResponse: {response}")

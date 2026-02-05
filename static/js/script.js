@@ -45,7 +45,9 @@ async function handleIdeaSubmission(ideaText) {
     });
 
     if (!response.ok) {
-        throw new Error(`API Error: ${response.statusText}`);
+        const errData = await response.json().catch(() => ({}));
+        const errorMessage = errData.detail || response.statusText || "Unknown API Error";
+        throw new Error(`API Error (${response.status}): ${errorMessage}`);
     }
 
     const data = await response.json();
@@ -107,7 +109,9 @@ async function handleClarification(answerText) {
     });
 
     if (!response.ok) {
-        throw new Error(`API Error: ${response.statusText}`);
+        const errData = await response.json().catch(() => ({}));
+        const errorMessage = errData.detail || response.statusText || "Unknown API Error";
+        throw new Error(`API Error (${response.status}): ${errorMessage}`);
     }
 
     const data = await response.json();
