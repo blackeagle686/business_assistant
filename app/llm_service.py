@@ -57,7 +57,7 @@ class LLMClient:
 
         outputs = self._pipeline(
             prompt_text,
-            max_new_tokens=1500,
+            max_new_tokens=4096, # Increased to prevent truncation
             do_sample=True,
             temperature=0.7,
             return_full_text=False
@@ -69,20 +69,37 @@ class LLMClient:
     # 🔹 UTIL: SAFE JSON EXTRACTION
     # ------------------------------------------------------------------
     def _extract_json_object(self, text: str) -> Dict[str, Any]:
+        """
+        Extracts the first valid JSON object from the text using regex.
+        Matches balanced braces handled by json parser, or finds the outer block.
+        """
+        # Try finding the largest outer block first
+        # Regex to find everything between the first { and the last }
+        match = re.search(r'\{.*\}', text, re.DOTALL)
+        
+        if match:
+            json_str = match.group(0)
+            try:
+                return json.loads(json_str)
+            except json.JSONDecodeError:
+                # If the largest block fails, it might include extra text at the end that confuses it 
+                # or be truncated.
+                pass
+        
+        # Fallback: finding the first {
         start = text.find("{")
         if start == -1:
-            raise ValueError("No JSON object found in response")
-
-        depth = 0
-        for i in range(start, len(text)):
-            if text[i] == "{":
-                depth += 1
-            elif text[i] == "}":
-                depth -= 1
-                if depth == 0:
-                    return json.loads(text[start : i + 1])
-
-        raise ValueError("Unbalanced JSON braces")
+            # If no brace, maybe it's just the key-values? (Unlikely)
+            raise ValueError("No JSON object found")
+            
+        # Attempt to parse from start, letting json.loads complain if truncated.
+        # But json.loads(text[start:]) fails if there is trailing text.
+        # We try to use the 'raw_decode' from Decoder which can stop after valid json.
+        try:
+            obj, idx = json.JSONDecoder().raw_decode(text[start:])
+            return obj
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Unbalanced or Invalid JSON: {e}")
 
     # ------------------------------------------------------------------
     # 🔹 CLARIFICATION QUESTIONS
