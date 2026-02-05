@@ -74,8 +74,10 @@ function renderDashboard(data) {
     document.getElementById('recommendations-text').innerHTML = marked.parse(plan.recommendations);
 }
 
-if (!el || !items) return;
-el.innerHTML = items.map(item => `<li>${item}</li>`).join('');
+function populateList(elementId, items) {
+    const el = document.getElementById(elementId);
+    if (!el || !items) return;
+    el.innerHTML = items.map(item => `<li>${item}</li>`).join('');
 }
 
 // Theme Toggling

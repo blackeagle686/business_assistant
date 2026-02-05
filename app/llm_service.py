@@ -21,15 +21,25 @@ class LLMClient:
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             logger.info("Initializing Local LLM Pipeline...")
-            from transformers import pipeline
+            from transformers import pipeline, BitsAndBytesConfig
+            import torch
+
+            # 4-bit Quantization Config
+            quant_config = BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_compute_dtype=torch.float16,
+                bnb_4bit_use_double_quant=True,
+            )
+
             # Use the requested model
             cls._pipeline = pipeline(
                 "text-generation",
                 model="Qwen/Qwen3-4B-Instruct-2507",
+                model_kwargs={"quantization_config": quant_config},
                 device_map="auto",
                 trust_remote_code=True
             )
-            logger.info("LLMClient Singleton Initialized (Local Pipeline)")
+            logger.info("LLMClient Singleton Initialized (Local Pipeline 4-bit)")
         return cls._instance
 
     # ------------------------------------------------------------------

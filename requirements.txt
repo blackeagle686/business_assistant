@@ -18,3 +18,4 @@ python-dotenv
 transformers
 torch
 accelerate
+bitsandbytes
