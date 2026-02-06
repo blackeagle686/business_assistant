@@ -60,10 +60,10 @@ function renderDashboard(data) {
         div.className = 'mb-3 pb-2 border-bottom border-secondary';
         div.innerHTML = `
             <h6 class="fw-bold">${kpi.name}</h6>
-            <p class="small text-muted mb-1">${kpi.description}</p>
+            <p class="small text-dim mb-1">${kpi.description}</p>
             <div class="d-flex justify-content-between small">
-                <span class="text-info">Freq: ${kpi.frequency}</span>
-                <span class="text-warning">Imp: ${kpi.importance}</span>
+                <span class="text-highlight">Freq: ${kpi.frequency}</span>
+                <span class="text-warning-custom">Imp: ${kpi.importance}</span>
             </div>
         `;
         kpiContainer.appendChild(div);

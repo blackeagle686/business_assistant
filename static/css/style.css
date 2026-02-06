@@ -1,13 +1,22 @@
 :root {
     /* Dark Mode Defaults */
     --bg-color: #212121;
-    --card-bg: rgba(50, 50, 50, 0.8); /* Derived from #323232 with transparency */
+    --card-bg: rgba(50, 50, 50, 0.8);
+    /* Derived from #323232 with transparency */
     --accent-color: #14FFEC;
     --accent-hover: #0D7377;
-    --text-primary: #E4F9F5; /* Using light bg for high contrast text */
+    --text-primary: #E4F9F5;
+    /* Using light bg for high contrast text */
     --text-secondary: #AAAAAA;
     /* Lighter in dark mode */
     --border-color: rgba(20, 255, 236, 0.1);
+
+    /* Semantic Text Colors */
+    --text-dim: #AAAAAA;
+    --text-highlight: #14FFEC;
+    --text-alert: #FF6B6B;
+    --text-success: #4ECDC4;
+    --text-warning: #FFE66D;
 }
 
 [data-theme="light"] {
@@ -19,6 +28,13 @@
     --text-secondary: #11999E;
     /* Darker in light mode */
     --border-color: rgba(64, 81, 78, 0.1);
+
+    /* Semantic Text Colors (Light) */
+    --text-dim: #6c757d;
+    --text-highlight: #11999E;
+    --text-alert: #D90429;
+    --text-success: #008080;
+    --text-warning: #F4A261;
 }
 
 body {
@@ -43,6 +59,30 @@ body {
 
 .text-accent {
     color: var(--accent-color) !important;
+}
+
+.text-accent {
+    color: var(--accent-color) !important;
+}
+
+.text-dim {
+    color: var(--text-dim) !important;
+}
+
+.text-highlight {
+    color: var(--text-highlight) !important;
+}
+
+.text-alert {
+    color: var(--text-alert) !important;
+}
+
+.text-success-custom {
+    color: var(--text-success) !important;
+}
+
+.text-warning-custom {
+    color: var(--text-warning) !important;
 }
 
 .app-header {
@@ -249,16 +289,94 @@ body {
 }
 
 /* Dashboard Specifics (Results) */
+/* BMC Grid Layout */
+.bmc-container {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: auto auto auto;
+    gap: 1rem;
+    grid-template-areas:
+        "partners activities value relationships customers"
+        "partners resources value channels customers"
+        "costs costs costs revenue revenue";
+}
+
+@media (max-width: 992px) {
+    .bmc-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+        grid-template-areas:
+            "value" "customers" "relationships" "channels"
+            "partners" "activities" "resources" "costs" "revenue";
+    }
+}
+
+.bmc-area-partners {
+    grid-area: partners;
+}
+
+.bmc-area-activities {
+    grid-area: activities;
+}
+
+.bmc-area-resources {
+    grid-area: resources;
+}
+
+.bmc-area-value {
+    grid-area: value;
+}
+
+.bmc-area-relationships {
+    grid-area: relationships;
+}
+
+.bmc-area-channels {
+    grid-area: channels;
+}
+
+.bmc-area-customers {
+    grid-area: customers;
+}
+
+.bmc-area-costs {
+    grid-area: costs;
+}
+
+.bmc-area-revenue {
+    grid-area: revenue;
+}
+
+
 .bmc-card {
-    background: rgba(30, 30, 40, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    background: var(--card-bg);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--border-color) !important;
     transition: all 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.bmc-card h6 {
+    margin-bottom: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+.bmc-card ul {
+    flex-grow: 1;
 }
 
 .bmc-card:hover {
     transform: translateY(-3px);
     background: rgba(40, 40, 55, 0.7);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: var(--accent-color) !important;
 }
 
 .alert {
