@@ -1,24 +1,24 @@
 :root {
     /* Dark Mode Defaults */
-    --bg-color: #0F0F12;
-    --card-bg: rgba(30, 30, 40, 0.6);
-    --accent-color: #6366F1;
-    --accent-hover: #4F46E5;
-    --text-primary: #E2E8F0;
-    --text-secondary: #CBD5E1;
-    /* Lighter in dark mode (was #94A3B8) */
-    --border-color: rgba(255, 255, 255, 0.1);
+    --bg-color: #212121;
+    --card-bg: rgba(50, 50, 50, 0.8); /* Derived from #323232 with transparency */
+    --accent-color: #14FFEC;
+    --accent-hover: #0D7377;
+    --text-primary: #E4F9F5; /* Using light bg for high contrast text */
+    --text-secondary: #AAAAAA;
+    /* Lighter in dark mode */
+    --border-color: rgba(20, 255, 236, 0.1);
 }
 
 [data-theme="light"] {
-    --bg-color: #F8FAFC;
-    --card-bg: rgba(255, 255, 255, 0.7);
-    --accent-color: #4F46E5;
-    --accent-hover: #4338CA;
-    --text-primary: #1E293B;
-    --text-secondary: #475569;
+    --bg-color: #E4F9F5;
+    --card-bg: rgba(255, 255, 255, 0.6);
+    --accent-color: #30E3CA;
+    --accent-hover: #11999E;
+    --text-primary: #40514E;
+    --text-secondary: #11999E;
     /* Darker in light mode */
-    --border-color: rgba(0, 0, 0, 0.1);
+    --border-color: rgba(64, 81, 78, 0.1);
 }
 
 body {
