@@ -295,5 +295,47 @@ Return ONLY a JSON array:
         )
         return BusinessPlan(**data)
 
+    # ------------------------------------------------------------------
+    # 🔹 CHAT WITH CONTEXT
+    # ------------------------------------------------------------------
+    async def chat_with_context(
+        self,
+        history: List[Dict[str, str]],
+        context: str,
+        topic: str,
+        user_message: str
+    ) -> str:
+        
+        system_prompt = f"""
+You are a specialized business consultant assistant. 
+You are discussing the "{topic}" section of a business plan with the user.
+Context from the plan:
+"{context}"
+
+Answer the user's question specifically related to this context. 
+Keep answers concise, professional, and helpful.
+"""
+        # Construct messages for chat template
+        messages = [{"role": "system", "content": system_prompt}]
+        messages.extend(history)
+        messages.append({"role": "user", "content": user_message})
+
+        # Apply chat template
+        prompt_text = self._pipeline.tokenizer.apply_chat_template(
+            messages, 
+            tokenize=False, 
+            add_generation_prompt=True
+        )
+
+        outputs = self._pipeline(
+            prompt_text,
+            max_new_tokens=1024,
+            do_sample=True,
+            temperature=0.7,
+            return_full_text=False
+        )
+        
+        return outputs[0]["generated_text"]
+
 
 llm_client = LLMClient()

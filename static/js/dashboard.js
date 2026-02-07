@@ -30,18 +30,34 @@ function renderDashboard(data) {
     if (!plan) return;
 
     // Executive Summary
-    document.getElementById('exec-summary').innerHTML = marked.parse(plan.executive_summary);
+    const execSummaryText = marked.parse(plan.executive_summary);
+    document.getElementById('exec-summary').innerHTML = execSummaryText;
+    // Add Chat Button to Exec Summary Card Title
+    addChatButton(
+        document.querySelector('#exec-summary').previousElementSibling, // The h2 title
+        "Executive Summary",
+        () => plan.executive_summary
+    );
 
     // Business Model Canvas
-    populateList('bmc-partners', plan.business_model.key_partners);
-    populateList('bmc-activities', plan.business_model.key_activities);
-    populateList('bmc-resources', plan.business_model.key_resources);
-    populateList('bmc-value', plan.business_model.value_proposition);
-    populateList('bmc-relationships', plan.business_model.customer_relationships);
-    populateList('bmc-channels', plan.business_model.channels);
-    populateList('bmc-customers', plan.business_model.customer_segments);
-    populateList('bmc-costs', plan.business_model.cost_structure);
-    populateList('bmc-revenue', plan.business_model.revenue_streams);
+    const bmcMappings = [
+        { id: 'bmc-partners', topic: 'Key Partners', data: plan.business_model.key_partners },
+        { id: 'bmc-activities', topic: 'Key Activities', data: plan.business_model.key_activities },
+        { id: 'bmc-resources', topic: 'Key Resources', data: plan.business_model.key_resources },
+        { id: 'bmc-value', topic: 'Value Proposition', data: plan.business_model.value_proposition },
+        { id: 'bmc-relationships', topic: 'Customer Relationships', data: plan.business_model.customer_relationships },
+        { id: 'bmc-channels', topic: 'Channels', data: plan.business_model.channels },
+        { id: 'bmc-customers', topic: 'Customer Segments', data: plan.business_model.customer_segments },
+        { id: 'bmc-costs', topic: 'Cost Structure', data: plan.business_model.cost_structure },
+        { id: 'bmc-revenue', topic: 'Revenue Streams', data: plan.business_model.revenue_streams },
+    ];
+
+    bmcMappings.forEach(item => {
+        populateList(item.id, item.data);
+        // Find the header (h6) inside the card wrapper of this list
+        const wrapper = document.getElementById(item.id).closest('.bmc-card');
+        addChatButton(wrapper, item.topic, () => item.data.join('\n'));
+    });
 
     // Market Analysis
     const marketHtml = `
@@ -51,7 +67,13 @@ function renderDashboard(data) {
         <h6>Competitors:</h6>
         <ul>${plan.market_analysis.competitors.map(x => `<li>${x}</li>`).join('')}</ul>
     `;
-    document.getElementById('market-analysis-text').innerHTML = marketHtml;
+    const marketContainer = document.getElementById('market-analysis-text');
+    marketContainer.innerHTML = marketHtml;
+    addChatButton(
+        marketContainer.closest('.card').querySelector('.card-title'),
+        "Market Analysis",
+        () => `Market Size: ${plan.market_analysis.market_size}\nTrends: ${plan.market_analysis.growth_trends.join(', ')}\nCompetitors: ${plan.market_analysis.competitors.join(', ')}`
+    );
 
     // KPIs
     const kpiContainer = document.getElementById('kpi-container');
@@ -59,7 +81,10 @@ function renderDashboard(data) {
         const div = document.createElement('div');
         div.className = 'mb-3 pb-2 border-bottom border-secondary';
         div.innerHTML = `
-            <h6 class="fw-bold">${kpi.name}</h6>
+            <div class="d-flex justify-content-between align-items-start">
+               <h6 class="fw-bold mb-0">${kpi.name}</h6>
+               <!-- Individual KPI chat? Maybe overkill, let's put one main KPI button -->
+            </div>
             <p class="small text-dim mb-1">${kpi.description}</p>
             <div class="d-flex justify-content-between small">
                 <span class="text-highlight">Freq: ${kpi.frequency}</span>
@@ -68,10 +93,27 @@ function renderDashboard(data) {
         `;
         kpiContainer.appendChild(div);
     });
+    // Add Chat to KPI Card
+    addChatButton(
+        kpiContainer.closest('.card').querySelector('.card-title'),
+        "KPIs",
+        () => JSON.stringify(plan.kpis, null, 2)
+    );
 
     // Risks & Recommendations
     populateList('risk-list', plan.market_analysis.risks);
+    addChatButton(
+        document.getElementById('risk-list').previousElementSibling, // h5 alert heading
+        "Risks",
+        () => plan.market_analysis.risks.join('\n')
+    );
+
     document.getElementById('recommendations-text').innerHTML = marked.parse(plan.recommendations);
+    addChatButton(
+        document.getElementById('recommendations-text').previousElementSibling,
+        "Recommendations",
+        () => plan.recommendations
+    );
 }
 
 function populateList(elementId, items) {
@@ -106,4 +148,133 @@ function updateThemeIcon(theme) {
         icon.classList.remove('bi-sun');
         icon.classList.add('bi-moon-stars');
     }
+}
+// Chat State
+let currentChatTopic = "";
+let currentChatContext = "";
+const chatHistoryMap = {}; // topic -> array of html strings
+
+function openChat(topic, context) {
+    currentChatTopic = topic;
+    currentChatContext = context;
+
+    // safe DOM elements
+    const modalTitle = document.getElementById('chatModalLabel');
+    const chatHistoryDiv = document.getElementById('modal-chat-history');
+
+    modalTitle.innerText = `Discuss: ${topic}`;
+    chatHistoryDiv.innerHTML = chatHistoryMap[topic] || '<div class="text-center text-muted small mt-5">Start a conversation about this section...</div>';
+
+    const modal = new bootstrap.Modal(document.getElementById('chatModal'));
+    modal.show();
+
+    // Scroll to bottom
+    setTimeout(() => {
+        chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
+        document.getElementById('modal-chat-input').focus();
+    }, 500);
+}
+
+function addChatButton(container, topic, getContextFn) {
+    // container can be an element or a selector string
+    const parent = typeof container === 'string' ? document.querySelector(container) : container;
+    if (!parent) return;
+
+    // Create handy button
+    const btn = document.createElement('button');
+    btn.className = "btn btn-sm btn-outline-accent ms-2 border-0";
+    btn.innerHTML = '<i class="bi bi-chat-dots-fill"></i>';
+    btn.title = "Chat about this section";
+    btn.onclick = (e) => {
+        e.stopPropagation(); // prevent card clicks
+        const context = getContextFn();
+        openChat(topic, context);
+    };
+
+    // Attempt to append next to the header if possible, or just inside the container
+    // If container is a header element (h1-h6), append directly
+    if (['H1', 'H2', 'H3', 'H4', 'H5', 'H6'].includes(parent.tagName)) {
+        parent.appendChild(btn);
+    } else {
+        // Try to find a header inside
+        const header = parent.querySelector('h1, h2, h3, h4, h5, h6, .card-title, .alert-heading');
+        if (header) {
+            header.appendChild(btn);
+        } else {
+            // Fallback: top right absolute or just append
+            parent.appendChild(btn);
+        }
+    }
+}
+
+// Send Message
+document.getElementById('modal-send-btn').addEventListener('click', sendChatMessage);
+document.getElementById('modal-chat-input').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendChatMessage();
+});
+
+async function sendChatMessage() {
+    const input = document.getElementById('modal-chat-input');
+    const text = input.value.trim();
+    if (!text) return;
+
+    const chatHistoryDiv = document.getElementById('modal-chat-history');
+    const topic = currentChatTopic;
+
+    // 1. Add User Message
+    const userMsgHTML = `<div class="message-bubble user-msg ms-auto">${text}</div>`;
+
+    // Clear initial placeholder if exists
+    if (chatHistoryDiv.innerHTML.includes('Start a conversation')) chatHistoryDiv.innerHTML = '';
+
+    chatHistoryDiv.innerHTML += userMsgHTML;
+    input.value = '';
+    chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
+
+    // Save to local cache
+    chatHistoryMap[topic] = chatHistoryDiv.innerHTML;
+
+    // 2. Add Loading Bubble
+    const loadingId = 'chat-loading-' + Date.now();
+    chatHistoryDiv.innerHTML += `<div id="${loadingId}" class="message-bubble ai-msg me-auto"><span class="spinner-border spinner-border-sm" role="status"></span> Thinking...</div>`;
+    chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
+
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionId = urlParams.get('session_id');
+
+        const response = await fetch('/api/assistant/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                session_id: sessionId,
+                topic: topic,
+                context: currentChatContext,
+                message: text
+            })
+        });
+
+        const data = await response.json();
+
+        // Remove loading
+        document.getElementById(loadingId).remove();
+
+        if (response.ok) {
+            // Add AI Message
+            let replyHtml = data.reply;
+            if (typeof marked !== 'undefined') replyHtml = marked.parse(replyHtml);
+
+            chatHistoryDiv.innerHTML += `<div class="message-bubble ai-msg me-auto">${replyHtml}</div>`;
+        } else {
+            chatHistoryDiv.innerHTML += `<div class="message-bubble ai-msg me-auto text-danger">Error: ${data.detail || 'Unknown error'}</div>`;
+        }
+
+    } catch (e) {
+        document.getElementById(loadingId).remove();
+        chatHistoryDiv.innerHTML += `<div class="message-bubble ai-msg me-auto text-danger">Network Error: ${e.message}</div>`;
+    }
+
+    // Update cache
+    chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
+    chatHistoryMap[topic] = chatHistoryDiv.innerHTML;
 }

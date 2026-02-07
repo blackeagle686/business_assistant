@@ -8,7 +8,7 @@ from fastapi.responses import FileResponse
 
 from app.schemas import (
     IdeaInput, ClarificationQuestion, ClarificationResponse, 
-    DashboardData, BusinessPlan
+    DashboardData, BusinessPlan, ChatRequest
 )
 from dotenv import load_dotenv
 
@@ -49,6 +49,7 @@ async def submit_idea(input_data: IdeaInput):
         "clarifications_needed": [],
         "answers": {},
         "plan": None,
+        "chats": {}, # topic -> history list
         "status": "clarification_needed"
     }
     
@@ -100,6 +101,45 @@ async def submit_clarification(response: ClarificationResponse):
     except Exception as e:
         logger.error(f"Error generating plan: {e}")
         session["status"] = "error"
+        logger.error(f"Error generating plan: {e}")
+        session["status"] = "error"
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/assistant/chat", response_model=Dict[str, Any])
+async def chat_assistant(request: ChatRequest):
+    """
+    Step 3: Per-Section Chat.
+    """
+    session_id = request.session_id
+    if session_id not in sessions:
+        raise HTTPException(status_code=404, detail="Session not found")
+        
+    session = sessions[session_id]
+    
+    # Initialize chat history for this topic if not exists
+    if request.topic not in session["chats"]:
+        session["chats"][request.topic] = []
+        
+    history = session["chats"][request.topic]
+    
+    try:
+        reply = await llm_client.chat_with_context(
+            history=history,
+            context=request.context,
+            topic=request.topic,
+            user_message=request.message
+        )
+        
+        # Update History
+        session["chats"][request.topic].append({"role": "user", "content": request.message})
+        session["chats"][request.topic].append({"role": "assistant", "content": reply})
+        
+        return {
+            "reply": reply,
+            "topic": request.topic
+        }
+    except Exception as e:
+        logger.error(f"Chat error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/dashboard/{session_id}", response_model=DashboardData)

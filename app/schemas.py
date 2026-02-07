@@ -54,3 +54,9 @@ class DashboardData(BaseModel):
     plan: Optional[BusinessPlan]
     status: str
     clarification_questions: Optional[List[ClarificationQuestion]]
+
+class ChatRequest(BaseModel):
+    session_id: str
+    topic: str
+    context: str
+    message: str
