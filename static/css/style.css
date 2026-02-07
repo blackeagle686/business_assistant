@@ -430,7 +430,7 @@ body {
 }
 
 .modal-content {
-    background-image: linear-gradient(45deg, var(--accent-color), var(--bg-color)) !important;
+    background-image: linear-gradient(45deg, var(--card-bg), var(--bg-color)) !important;
 
 }
 
@@ -444,7 +444,6 @@ body {
 }
 
 #modal-chat-input{
-    border-radius: 20px;
     background-color: var(--bg-color);
     color: var(--text-highlight) !important;
 }
