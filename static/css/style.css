@@ -388,7 +388,7 @@ body {
 
 .bmc-card:hover {
     transform: translateY(-3px);
-    background: var(--accent-color);
+    background-image: linear-gradient(45deg, var(--bg-color), var(--accent-color));
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     border-color: var(--accent-color) !important;
     color: var(--text-primary) !important;
@@ -658,3 +658,9 @@ body {
         opacity: 1;
     }
 }
+
+
+#market-analysis-text li{
+    color: var(--text-highlight) !important;
+}
+
