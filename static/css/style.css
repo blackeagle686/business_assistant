@@ -349,13 +349,19 @@ body {
 
 
 .bmc-card {
-    background: var(--card-bg);
-    backdrop-filter: blur(8px);
-    border: 1px solid var(--border-color) !important;
+    background: rgba(60, 60, 70, 0.95);
+    /* Lighter and less transparent for better contrast */
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
     transition: all 0.3s ease;
     height: 100%;
     display: flex;
     flex-direction: column;
+}
+
+[data-theme="light"] .bmc-card {
+    background: var(--card-bg);
+    /* Keep transparent glass for light mode */
+    border-color: var(--border-color) !important;
 }
 
 .bmc-card h6 {
