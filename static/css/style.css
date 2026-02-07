@@ -138,10 +138,11 @@ body {
 }
 
 .ai-msg {
-    background: rgba(40, 40, 50, 0.7);
+    background: var(--card-bg);
     border: 1px solid var(--border-color);
     margin-right: auto;
     border-bottom-left-radius: 4px;
+    color: var(--text-highlight) !important;
 }
 
 .ai-msg ul {
