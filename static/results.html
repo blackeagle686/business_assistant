@@ -71,7 +71,7 @@
                         <ul id="bmc-partners" class="list-unstyled small"></ul>
                     </div>
                 </div>
-                
+
                 <!-- Key Activities -->
                 <div class="bmc-area-activities">
                     <div class="bmc-card p-3 rounded">
@@ -182,6 +182,34 @@
 
         </div>
     </main>
+
+    <!-- Chat Modal -->
+    <div class="modal fade" id="chatModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content glass-effect border-0">
+                <div class="modal-header border-bottom border-secondary">
+                    <h5 class="modal-title text-accent" id="chatModalLabel">Discuss with Assistant</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="modal-chat-history" class="chat-messages" style="height: 400px; overflow-y: auto;">
+                        <!-- Chat messages injected here -->
+                    </div>
+                </div>
+                <div class="modal-footer border-top border-secondary">
+                    <div class="input-group">
+                        <input type="text" id="modal-chat-input"
+                            class="form-control bg-transparent text-light border-secondary"
+                            placeholder="Ask a question about this section...">
+                        <button class="btn btn-outline-accent" type="button" id="modal-send-btn">
+                            <i class="bi bi-send"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="/static/js/dashboard.js"></script>
 </body>

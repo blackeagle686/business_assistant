@@ -208,10 +208,18 @@ function addChatButton(container, topic, getContextFn) {
 }
 
 // Send Message
-document.getElementById('modal-send-btn').addEventListener('click', sendChatMessage);
-document.getElementById('modal-chat-input').addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') sendChatMessage();
-});
+// Send Message
+const modalSendBtn = document.getElementById('modal-send-btn');
+if (modalSendBtn) {
+    modalSendBtn.addEventListener('click', sendChatMessage);
+}
+
+const modalChatInput = document.getElementById('modal-chat-input');
+if (modalChatInput) {
+    modalChatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendChatMessage();
+    });
+}
 
 async function sendChatMessage() {
     const input = document.getElementById('modal-chat-input');
