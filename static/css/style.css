@@ -554,3 +554,107 @@ body {
 .text-muted{
     color: var(--text-secondary) !important;
 }
+
+.card-body p{
+    color: var(--text-highlight) !important;
+}
+
+/* Navbar container */
+.modern-navbar {
+    background: linear-gradient(
+        145deg,
+        rgba(4, 101, 130, 0.25),
+        rgba(110, 117, 130, 0.15)
+    );
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    padding: 14px 18px;
+}
+
+/* Logo area */
+.logo-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(45deg, #046582, #F39189);
+    color: white;
+    font-size: 18px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+}
+
+.brand-text {
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: .4px;
+    color: var(--text-primary);
+}
+
+/* Buttons base */
+.nav-btn {
+    border-radius: 12px;
+    padding: 6px 14px;
+    font-size: .85rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid transparent;
+    transition: all .25s ease;
+}
+
+/* Ghost button */
+.ghost-btn {
+    background: transparent;
+    color: var(--text-secondary);
+}
+
+.ghost-btn:hover {
+    background: rgba(255,255,255,0.04);
+    color: var(--text-primary);
+}
+
+/* Theme button */
+.theme-btn {
+    background: rgba(255,255,255,0.04);
+    color: var(--text-secondary);
+}
+
+.theme-btn:hover {
+    background: linear-gradient(45deg, #046582, #6E7582);
+    color: white;
+}
+
+/* Primary CTA */
+.primary-btn {
+    background: linear-gradient(45deg, #046582, #F39189);
+    color: white;
+    border: none;
+    box-shadow: 0 6px 18px rgba(4,101,130,0.35);
+}
+
+.primary-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px rgba(4,101,130,0.45);
+}
+
+.primary-btn:active {
+    transform: scale(0.96);
+}
+
+/* subtle entrance animation */
+.app-header {
+    animation: slideDown .35s ease;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-10px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
