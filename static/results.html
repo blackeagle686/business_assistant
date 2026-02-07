@@ -186,26 +186,28 @@
     </main>
 
     <!-- Chat Modal -->
+    <!-- Chat Modal -->
     <div class="modal fade" id="chatModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content glass-effect border-0">
-                <div class="modal-header border-bottom border-secondary">
-                    <h5 class="modal-title text-accent" id="chatModalLabel">Discuss with Assistant</h5>
+                <div class="modal-header border-bottom border-light-subtle">
+                    <h5 class="modal-title" id="chatModalLabel">
+                        <i class="bi bi-robot me-2"></i>Discuss with Assistant
+                    </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <div id="modal-chat-history" class="chat-messages" style="height: 400px; overflow-y: auto;">
+                <div class="modal-body p-0">
+                    <div id="modal-chat-history" class="chat-messages" style="height: 450px; overflow-y: auto;">
                         <!-- Chat messages injected here -->
                     </div>
                 </div>
-                <div class="modal-footer border-top border-secondary">
-                    <div class="input-group">
-                        <input type="text" id="modal-chat-input"
-                            class="form-control bg-transparent text-light border-secondary"
+                <div class="modal-footer border-top border-light-subtle">
+                    <div class="input-group w-100">
+                        <input type="text" id="modal-chat-input" class="form-control bg-transparent text-light"
                             placeholder="Ask a question about this section...">
-                        <button class="btn btn-outline-accent" type="button" id="modal-send-btn">
-                            <i class="bi bi-send"></i>
+                        <button class="btn btn-accent" type="button" id="modal-send-btn">
+                            <i class="bi bi-send-fill"></i>
                         </button>
                     </div>
                 </div>
