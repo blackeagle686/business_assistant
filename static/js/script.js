@@ -61,7 +61,7 @@ async function handleIdeaSubmission(ideaText) {
         const msg = `
             <p><strong>${data.message || 'I need a few more details to build a solid plan:'}</strong></p>
             <ul>${questionsList}</ul>
-            <p class="small text-muted mt-2"><em>Please answer these questions in your next message.</em></p>
+            <p class="small mt-2"><em>Please answer these questions in your next message.</em></p>
         `;
         addMessage(msg, 'ai');
 
