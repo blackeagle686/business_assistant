@@ -190,8 +190,9 @@ body {
 
 .feature-card:hover {
     transform: translateY(-5px);
-    background: rgba(40, 40, 55, 0.8);
+    background: var(--accent-color);
     border-color: var(--accent-color);
+    column-rule: var(--text-primary);
 }
 
 .suggestion-chip {
@@ -202,7 +203,7 @@ body {
 }
 
 .suggestion-chip:hover {
-    background: rgba(99, 102, 241, 0.1);
+    background: var(--accent-color);
     color: var(--text-primary);
     border-color: var(--accent-color);
     transform: translateY(-2px);
@@ -381,9 +382,10 @@ body {
 
 .bmc-card:hover {
     transform: translateY(-3px);
-    background: rgba(40, 40, 55, 0.7);
+    background: var(--accent-color);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     border-color: var(--accent-color) !important;
+    color: var(--text-primary) !important;
 }
 
 .alert {
