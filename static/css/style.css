@@ -428,3 +428,33 @@ body {
     background-color: var(--bg-color) !important;
     color: var(--text-highlight) !important;
 }
+
+.modal-content {
+    background-image: linear-gradient(45deg, var(--accent-color), var(--bg-color)) !important;
+
+}
+
+.modal-header {
+    background-image:linear-gradient(45eg, var(--bg-color), var(--accent-color)) !important;
+
+}
+
+.input-group {
+    border-radius: 20px;
+}
+
+#modal-chat-input{
+    border-radius: 20px;
+    background-color: var(--bg-color);
+    color: var(--text-highlight) !important;
+}
+
+#modal-send-btn{
+    background-image: linear-gradient(45deg, var(--bg-color), var(--accent-color)) !important;
+    color: var(--text-highlight) !important;
+}
+
+#modal-chat-input:hover{
+    background-image: linear-gradient(-45deg, var(--bg-color), var(--accent-color)) !important;
+    color: var(--text-highlight) !important; 
+}
