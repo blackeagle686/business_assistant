@@ -406,3 +406,22 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.2);
 }
+
+.bmc-value {
+    color: var(--text-highlight) !important;
+}
+
+.bmc-value:hover {
+    background-color: var(--bg-color) !important;
+    color: var(--text-highlight) !important;
+}
+
+.bmc-value:active {
+    background-color: var(--bg-color) !important;
+    color: var(--text-highlight) !important;
+}
+
+.bmc-value:focus {
+    background-color: var(--bg-color) !important;
+    color: var(--text-highlight) !important;
+}
