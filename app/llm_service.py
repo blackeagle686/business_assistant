@@ -20,30 +20,20 @@ class LLMClient:
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
-            logger.info("Initializing Local LLM Pipeline...")
-            from transformers import pipeline, BitsAndBytesConfig
-            import torch
+            logger.info("Initializing API-based LLM Pipeline...")
+            # Use the remote API pipeline instead of a local transformers pipeline
+            try:
+                from app.api_llm_service import APIClient, Config
 
-            # 4-bit Quantization Config
-            quant_config = BitsAndBytesConfig(
-                load_in_4bit=True,
-                bnb_4bit_compute_dtype=torch.float16,
-                bnb_4bit_use_double_quant=True,
-            )
-
-            # Use the requested model
-            cls._pipeline = pipeline(
-                "text-generation",
-                model="Qwen/Qwen3-4B-Instruct-2507",
-                model_kwargs={"quantization_config": quant_config},
-                device_map="auto",
-                trust_remote_code=True
-            )
-            logger.info("LLMClient Singleton Initialized (Local Pipeline 4-bit)")
+                cls._pipeline = APIClient(Config())
+                logger.info("LLMClient Singleton Initialized (API Pipeline)")
+            except Exception as e:
+                logger.exception("Failed to initialize API LLM pipeline: %s", e)
+                raise
         return cls._instance
 
-    # ------------------------------------------------------------------
-    # 🔹 LOW LEVEL GENERATION
+    
+    # LOW LEVEL GENERATION
     # ------------------------------------------------------------------
     async def _generate(
         self,
@@ -57,26 +47,22 @@ class LLMClient:
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": prompt},
         ]
-        
-        # Apply chat template
-        prompt_text = self._pipeline.tokenizer.apply_chat_template(
-            messages, 
-            tokenize=False, 
-            add_generation_prompt=True
-        )
+        # Delegate generation to the configured pipeline (API client)
+        try:
+            return await self._pipeline.generate(prompt, system_prompt)
+        except AttributeError:
+            # In case the pipeline is a transformers Pipeline or similar
+            outputs = self._pipeline(
+                prompt,
+                max_new_tokens=4096,
+                do_sample=True,
+                temperature=0.7,
+                return_full_text=False,
+            )
+            return outputs[0]["generated_text"]
 
-        outputs = self._pipeline(
-            prompt_text,
-            max_new_tokens=4096, # Increased to prevent truncation
-            do_sample=True,
-            temperature=0.7,
-            return_full_text=False
-        )
-        
-        return outputs[0]["generated_text"]
-
-    # ------------------------------------------------------------------
-    # 🔹 UTIL: SAFE JSON EXTRACTION
+    
+    #  UTIL: SAFE JSON EXTRACTION
     # ------------------------------------------------------------------
     def _extract_json_object(self, text: str) -> Dict[str, Any]:
         """
@@ -111,17 +97,25 @@ class LLMClient:
         except json.JSONDecodeError as e:
             raise ValueError(f"Unbalanced or Invalid JSON: {e}")
 
-    # ------------------------------------------------------------------
-    # 🔹 CLARIFICATION QUESTIONS
+    #  CLARIFICATION QUESTIONS
     # ------------------------------------------------------------------
     async def generate_clarification_questions(
         self,
         idea_text: str,
     ) -> List[ClarificationQuestion]:
+        # Retrieve context from vector DB to help inform clarification questions
+        try:
+            from app.rag import rag_service
+            retrieved = rag_service.search(idea_text, k=3)
+        except Exception:
+            retrieved = ""
 
         prompt = f"""
 Analyze this business idea:
 "{idea_text}"
+
+Relevant Documents/Context from knowledge base:
+{retrieved}
 
 Identify 3–5 missing critical details.
 
@@ -164,8 +158,8 @@ Return ONLY a JSON array:
                 ),
             ]
 
-    # ------------------------------------------------------------------
-    # 🔹 SANITIZATION
+    
+    #  SANITIZATION
     # ------------------------------------------------------------------
     def _sanitize_plan_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
 
@@ -205,61 +199,72 @@ Return ONLY a JSON array:
 
         return data
 
-    # ------------------------------------------------------------------
-    # 🔹 BUSINESS PLAN
+    #  BUSINESS PLAN
     # ------------------------------------------------------------------
     async def generate_business_plan(
         self,
         idea_text: str,
         clarifications: Dict[str, str],
-        rag_context: str,
+        rag_context: Optional[str],
     ) -> BusinessPlan:
 
         context_str = "\n".join(
             f"Q: {q}\nA: {a}" for q, a in clarifications.items()
         )
 
+        # If no rag_context provided, query the RAG service
+        if not rag_context:
+            try:
+                from app.rag import rag_service
+                rag_context = rag_service.search(idea_text, k=5)
+            except Exception as e:
+                logger.warning("RAG search failed or unavailable: %s", e)
+                rag_context = ""
+
         prompt = f"""
-        You are a business expert. Generate a Business Plan for the idea: "{idea_text}" in JSON format.
-        
-        Context: {context_str}
-        Market Data: {rag_context}
-        
-        Strictly follow this JSON structure. Do not output markdown, just the JSON object:
+You are a business expert. Generate a Business Plan for the idea: "{idea_text}" in JSON format.
+
+Context from clarifications:
+{context_str}
+
+Market / Knowledge base context (use this to ground claims, cite sources):
+{rag_context}
+
+Strictly follow this JSON structure. Do not output markdown, just the JSON object:
+{{
+    "executive_summary": "A brief summary of the business...",
+    "market_analysis": {{
+        "market_size": "Estimate of market value...",
+        "growth_trends": ["trend 1", "trend 2"],
+        "competitors": ["comp 1", "comp 2"],
+        "opportunities": ["opp 1"],
+        "risks": ["risk 1"],
+        "relevant_use_cases": ["case 1"]
+    }},
+    "business_model": {{
+        "value_proposition": ["prop 1"],
+        "customer_segments": ["seg 1"],
+        "revenue_streams": ["stream 1"],
+        "cost_structure": ["cost 1"],
+        "key_activities": ["act 1"],
+        "key_resources": ["res 1"],
+        "key_partners": ["partner 1"],
+        "channels": ["channel 1"],
+        "customer_relationships": ["rel 1"]
+    }},
+    "kpis": [
         {{
-            "executive_summary": "A brief summary of the business...",
-            "market_analysis": {{
-                "market_size": "Estimate of market value...",
-                "growth_trends": ["trend 1", "trend 2"],
-                "competitors": ["comp 1", "comp 2"],
-                "opportunities": ["opp 1"],
-                "risks": ["risk 1"],
-                "relevant_use_cases": ["case 1"]
-            }},
-            "business_model": {{
-                "value_proposition": ["prop 1"],
-                "customer_segments": ["seg 1"],
-                "revenue_streams": ["stream 1"],
-                "cost_structure": ["cost 1"],
-                "key_activities": ["act 1"],
-                "key_resources": ["res 1"],
-                "key_partners": ["partner 1"],
-                "channels": ["channel 1"],
-                "customer_relationships": ["rel 1"]
-            }},
-            "kpis": [
-                {{
-                    "name": "Revenue Growth",
-                    "description": "Monthly growth rate",
-                    "formula": "(Rev - LastRev)/LastRev",
-                    "importance": "High",
-                    "frequency": "Monthly"
-                }}
-            ],
-            "assumptions_constraints": ["assume stable economy"],
-            "recommendations": "Start small and validate."
+            "name": "Revenue Growth",
+            "description": "Monthly growth rate",
+            "formula": "(Rev - LastRev)/LastRev",
+            "importance": "High",
+            "frequency": "Monthly"
         }}
-        """
+    ],
+    "assumptions_constraints": ["assume stable economy"],
+    "recommendations": "Start small and validate."
+}}
+"""
 
         response = await self._generate(
             prompt,
@@ -282,8 +287,8 @@ Return ONLY a JSON array:
             logger.error(f"Plan parsing failed: {e}\n{response}")
             return self._create_fallback_plan(str(e))
 
-    # ------------------------------------------------------------------
-    # 🔹 FALLBACK
+    
+    #  FALLBACK
     # ------------------------------------------------------------------
     def _create_fallback_plan(self, error_message: str) -> BusinessPlan:
         data = self._sanitize_plan_data({})
