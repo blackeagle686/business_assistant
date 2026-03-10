@@ -320,27 +320,18 @@ Context from the plan:
 Answer the user's question specifically related to this context. 
 Keep answers concise, professional, and helpful.
 """
-        # Construct messages for chat template
-        messages = [{"role": "system", "content": system_prompt}]
-        messages.extend(history)
-        messages.append({"role": "user", "content": user_message})
+        # Construct user prompt from history and current message
+        # (APIClient handles system prompt separately)
+        history_text = "\n".join([f"{msg['role'].upper()}: {msg['content']}" for msg in history])
+        user_prompt = f"{history_text}\nUSER: {user_message}"
 
-        # Apply chat template
-        prompt_text = self._pipeline.tokenizer.apply_chat_template(
-            messages, 
-            tokenize=False, 
-            add_generation_prompt=True
-        )
-
-        outputs = self._pipeline(
-            prompt_text,
-            max_new_tokens=1024,
-            do_sample=True,
-            temperature=0.7,
-            return_full_text=False
+        # Use _generate to delegate to API client
+        response = await self._generate(
+            user_prompt,
+            system_prompt=system_prompt
         )
         
-        return outputs[0]["generated_text"]
+        return response
 
 
 llm_client = LLMClient()

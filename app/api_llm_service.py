@@ -1,14 +1,32 @@
 from dataclasses import dataclass
 import httpx
 import logging
+import os
 from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
+# Auto-load .env file if it exists (loads environment variables for this process)
+try:
+    from dotenv import load_dotenv
+    # Find and load .env from the project root (parent of app/ directory)
+    import pathlib
+    app_dir = pathlib.Path(__file__).parent  # .../app
+    project_root = app_dir.parent  # .../
+    env_file = project_root / ".env"
+    if env_file.exists():
+        load_dotenv(env_file, override=True)  # override=True to replace existing env vars
+    else:
+        load_dotenv(override=True)  # fallback: search parent directories
+except ImportError:
+    # python-dotenv not installed; env vars must be set manually
+    pass
+
 
 @dataclass
 class Config:
-    api_key: str = "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"
+    # Prefer reading API keys from env; this default should be empty for safety.
+    api_key: str = ""
     base_url: str = "https://openrouter.ai/api/v1"
     embedding_model: str = "all-MiniLM-L6-v2"
     similarity_threshold: float = 0.55
@@ -26,6 +44,22 @@ class APIClient:
 
     def __init__(self, config: Config = Config(), timeout: float = 60.0):
         self.config = config
+        # Resolve API key: prefer explicit config, then common environment vars
+        key = (
+            config.api_key
+            or os.getenv("OPENROUTER_API_KEY")
+            or os.getenv("OPENROUTER_KEY")
+            or os.getenv("OPENAI_API_KEY")
+            or os.getenv("API_KEY")
+        )
+
+        if not key:
+            raise RuntimeError(
+                "Missing API key for OpenRouter/OpenAI. Set OPENROUTER_API_KEY or pass Config(api_key=...)"
+            )
+
+        self.config.api_key = key
+
         self._client = httpx.AsyncClient(timeout=timeout, headers={
             "Authorization": f"Bearer {self.config.api_key}",
             "Content-Type": "application/json",
@@ -45,7 +79,15 @@ class APIClient:
         url = f"{self.config.base_url}/chat/completions"
 
         resp = await self._client.post(url, json=body)
-        resp.raise_for_status()
+        try:
+            resp.raise_for_status()
+        except httpx.HTTPStatusError as e:
+            # Provide a clearer error for authentication issues
+            if e.response.status_code == 401:
+                raise RuntimeError(
+                    "Authentication failed (401). Check your API key and that it is set in OPENROUTER_API_KEY or Config.api_key."
+                ) from e
+            raise
         data = resp.json()
 
         # Try to extract the message content robustly
