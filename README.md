@@ -1,225 +1,124 @@
-# Business Advice Assistant
+# 💼 Business Advisor AI
 
-Beautiful, modular Retrieval-Augmented Generation (RAG) assistant for business planning.
+<p align="center">
+  <img src="https://img.icons8.com/illustrations/external-tulpahn-outline-color-tulpahn/100/external-business-strategy-business-and-finance-tulpahn-outline-color-tulpahn.png" alt="Business Advisor Logo" width="120" />
+</p>
 
-This repository provides:
+<p align="center">
+  <strong>Advanced RAG-powered business planning and market research assistant.</strong>
+</p>
 
-- A lightweight API-based LLM client (`app/api_llm_service.py`) that uses an
-  OpenRouter/OpenAI-compatible chat API for generation.
-- A central `LLMClient` wrapper in `app/llm_service.py` that delegates
-  generation to the API client and cooperates with a RAG service.
-- A SQL → RAG ingestion pipeline (`app/sql_rag_pipeline.py`) that reads
-  textual records from SQL, chunks them, computes batched embeddings and
-  stores them in a Chroma vector store for retrieval.
-- A RAG service helper (`app/rag.py`) that uses HuggingFace embeddings and
-  Chroma for vector search.
-
-This README explains how the pieces fit, how to configure them, and gives
-examples for ingesting SQL data and running retrieval-augmented generation.
-
----
-
-## Key Features
-
-- Modular LLM pipeline that can use local transformers or a remote API.
-- SQL ingestion pipeline with chunking and batched embeddings to scale to
-  large tables.
-- Retrieval quality improvements: query-embedding retrieval and metadata
-  traceability for retrieved passages.
-- Clear fallbacks and lazy imports so modules import cleanly when optional
-  dependencies are not installed.
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
+  <img src="https://img.shields.io/badge/FastAPI-0.100+-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
+  <img src="https://img.shields.io/badge/LangChain-Project-1C3C3C?style=for-the-badge&logo=langchain&logoColor=white" alt="LangChain" />
+  <img src="https://img.shields.io/badge/ChromaDB-VectorStore-00C4CC?style=for-the-badge" alt="ChromaDB" />
+  <img src="https://img.shields.io/badge/Hugging_Face-Models-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black" alt="Hugging Face" />
+  <img src="https://img.shields.io/badge/OpenRouter-LLM-000000?style=for-the-badge" alt="OpenRouter" />
+  <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License" />
+</p>
 
 ---
 
-## Architecture & Workflow
+## 🚀 About the Project
 
-High level flow:
+**Business Advisor AI** is a modular Retrieval-Augmented Generation (RAG) system designed to provide data-driven business advice and strategic planning. By grounding LLM reasoning in industry-specific data (SQL tables, PDFs, and market reports), it delivers accurate, non-hallucinated insights for new ventures.
 
-1. Ingest data into vector store:
-   - Use `SQLRAGPipeline.ingest_from_sql()` to read rows from a SQL database,
-     split long text into chunks, and add them to a Chroma vector store.
-   - Chroma + HuggingFace embeddings compute and persist vector representations.
-2. Retrieval:
-   - `RAGService` or `SQLRAGPipeline.search()` performs similarity search.
-   - Query embedding-based search (preferred) produces higher-quality results.
-3. Generation:
-   - `LLMClient` (in `app/llm_service.py`) composes prompts that include
-     retrieved context and delegates generation to the API client
-     (`app/api_llm_service.py`).
+### ✨ Key Features
 
-Benefits:
-
-- Chunking reduces hallucination risk and keeps context focused.
-- Batch embedding reduces memory/compute spikes when indexing large datasets.
-- Metadata per chunk provides traceability back to original SQL rows.
+-   **🔍 Multi-Source RAG**: Ingests data from SQL databases and PDFs into a Chroma vector store.
+-   **🤖 Intelligent Reasoning**: Powered by Qwen (via OpenRouter/OpenAI API) for high-quality logic.
+-   **📈 KPI Frameworks**: Automatically generates industry-specific metrics and measurement strategies.
+-   **💬 Interactive Analysis**: Chat with the assistant to refine specific sections of your business plan.
+-   **🛠️ Modular Design**: Easily swap LLM providers, embedding models, or vector databases.
 
 ---
 
-## Prerequisites
+## 🛠️ Tech Stack
 
-- Python 3.10+
-- Recommended (for full functionality):
-  - `sqlalchemy`
-  - `langchain_chroma` (Chroma vector store binding)
-  - `langchain_huggingface` (HuggingFace embeddings)
-  - `langchain_text_splitters`
+-   **Core Interface**: [FastAPI](https://fastapi.tiangolo.com/) (Async API backend)
+-   **LLM Orchestration**: [LangChain](https://www.langchain.com/)
+-   **Vector Database**: [ChromaDB](https://www.trychroma.com/)
+-   **Embeddings**: [Hugging Face](https://huggingface.co/) (Sentence-Transformers)
+-   **LLM Provider**: [OpenRouter](https://openrouter.ai/) / [OpenAI](https://openai.com/)
+-   **Frontend**: HTML5, CSS3 (Modern Glassmorphism), Bootstrap 5
 
-Install project dependencies listed in `requirements.txt`:
+---
+
+## 🏗️ Architecture & Workflow
+
+The system follows a classic RAG architecture optimized for business data ingestion and retrieval.
+
+### Workflow Sequence
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant A as FastAPI App
+    participant V as Vector Store (Chroma)
+    participant L as LLM Service (OpenRouter)
+    
+    U->>A: Submit Business Idea
+    A->>L: Generate Clarification Questions
+    L-->>A: Questions
+    A-->>U: Show Questions
+    
+    U->>A: Submit Answers
+    A->>V: Search Relevant Market Context
+    V-->>A: Retrieved Snippets
+    A->>L: Generate Business Plan (Idea + Answers + Context)
+    L-->>A: Structured Plan
+    A-->>U: Display Dashboard & Plan
+```
+
+1.  **Ingestion**: `SQLRAGPipeline` reads rows from SQL, chunks text, and stores embeddings in Chroma.
+2.  **Interaction**: User submits an idea; the system asks clarifying questions to narrow scope.
+3.  **Retrieval**: The `RAGService` performs similarity search using HuggingFace embeddings.
+4.  **Generation**: The `LLMClient` composes a prompt with retrieved context and user answers, then calls the API.
+
+---
+
+## 🏁 Quickstart
+
+### 1. Installation
 
 ```bash
+git clone https://github.com/your-username/business-advisor-ai.git
+cd business-advisor-ai
 pip install -r requirements.txt
 ```
 
-If you don't need the SQL ingestion or RAG features, you can skip installing
-the langchain/chroma packages — the modules are written to fail with clear
-errors only when you call the functionality that requires them.
+### 2. Environment Setup
 
----
+Create a `.env` file in the root directory:
 
-## Configuration & Environment Variables
+```env
+OPENROUTER_API_KEY=your_key_here
+HF_TOKEN=your_token_here (optional)
+```
 
-Recommended environment variables (do not commit secrets to source):
-
-- `OPENROUTER_API_KEY` or similar — your OpenRouter/OpenAI-compatible API key.
-- `HF_TOKEN` — (optional) HuggingFace Hub token for some embedding models.
-
-The code includes a `Config` dataclass in `app/api_llm_service.py`. For
-security, prefer setting the API key via environment variables and updating
-the code to read from `os.environ` rather than embedding keys in code.
-
-Example (bash):
+### 3. Run the Application
 
 ```bash
-export OPENROUTER_API_KEY="sk-..."
-export HF_TOKEN="hf_..."
+uvicorn app.main:app --reload
 ```
+Visit `http://localhost:8000` to start your business analysis.
 
 ---
 
-## Quickstart — SQL ingestion example
+## 📝 Configuration
 
-This example ingests textual content stored in a SQLite database and runs a
-similarity search.
-
-1. Create a small SQLite database (example):
-
-```bash
-python - <<'PY'
-import sqlite3
-conn = sqlite3.connect('data/example.db')
-cur = conn.cursor()
-cur.execute('CREATE TABLE IF NOT EXISTS notes (id INTEGER PRIMARY KEY, title TEXT, content TEXT)')
-cur.execute("INSERT INTO notes (title,content) VALUES (?,?)", ('Market Note','The market size for X is estimated at $1B...'))
-conn.commit()
-conn.close()
-PY
-```
-
-2. Index the table into Chroma via the pipeline (example script):
-
-```python
-from app.sql_rag_pipeline import SQLRAGPipeline
-
-pipeline = SQLRAGPipeline(persist_directory='chroma_db')
-
-# A simple SELECT returning id and content columns
-pipeline.ingest_from_sql(
-    connection_string='sqlite:///data/example.db',
-    query='SELECT id, content FROM notes',
-    id_column='id',
-    text_column='content',
-    batch_size=100,
-    chunk_size=800,
-    chunk_overlap=100
-)
-
-print(pipeline.search('market size', k=3))
-```
-
-Notes:
-
-- Adjust `chunk_size` and `chunk_overlap` to suit the typical length of
-  your content. Smaller chunks increase recall but increase number of
-  vectors stored.
-- `batch_size` controls how many chunks we send to Chroma in each operation.
+-   **LLM Config**: Modify `app/api_llm_service.py` to change model types (default: `qwen/qwen-2-72b-instruct`).
+-   **Embedding Config**: Update `app/rag.py` to use different HuggingFace models.
 
 ---
 
-## Quickstart — API LLM generation example
+## 📄 License
 
-Use the API client wrapper for generation. Prefer to read your API key from
-environment variables.
-
-```python
-from app.api_llm_service import APIClient, Config
-
-cfg = Config()
-# cfg.api_key should be set from env (modify the dataclass or set before init)
-client = APIClient(cfg)
-
-result = client.generate('Hello — summarize the business case for X', sys_prompt='You are a helpful business assistant')
-print(result)
-```
-
-To use this in RAG flows, include retrieved context from the vector store inside
-the prompt you send to the LLM. See `app/llm_service.py` for how this repository
-composes prompts that combine clarifications and retrieved market context.
+Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
 
-## Testing & Validation
+## 🌍 Short Arabic Summary
 
-- Unit tests are not included by default. To validate basic imports:
-
-```bash
-python -c "import app.sql_rag_pipeline; import app.llm_service; print('imports OK')"
-```
-
-- For end-to-end checks, install `langchain_chroma`, `langchain_huggingface`,
-  and ensure `HF_TOKEN` is set if needed, then run the SQL ingestion example
-  above.
-
----
-
-## Troubleshooting
-
-- Module import errors mentioning `langchain_chroma` or
-  `langchain_huggingface` mean those optional deps are missing. Install the
-  packages or avoid calling the functions that need them.
-- If Chroma reports persistence errors, verify `persist_directory` exists and
-  is writable.
-- If retrieval returns low-quality results, try:
-  - Increasing `chunk_size` or decreasing `chunk_overlap`.
-  - Using a larger embedding model (change `embedding_model` argument).
-  - Increasing the number of retrieved documents `k` when calling `search()`.
-
----
-
-## Contributing
-
-Contributions welcome. Please open an issue for feature requests or bug
-reports. Follow these steps for code contributions:
-
-1. Fork the repository.
-2. Create a feature branch: `git checkout -b feature/your-feature`.
-3. Add tests for your change and update `README.md` as needed.
-4. Open a PR describing your changes.
-
----
-
-## License
-
-This project includes a `LICENSE` file in the repository root — please
-refer to it for license terms.
-
----
-
-## Short Arabic summary
-
-هذا المشروع يوفّر أداة RAG متكاملة لقراءة نصوص من قاعدة بيانات SQL،
-فهرستها في Chroma باستخدام تمثيلات متجهية، ثم استخدام هذه الوثائق كملخص
-سياقي مع نموذج لغوي لإنتاج خطط أو نصائح تجارية.
-
-For detailed examples, see `app/sql_rag_pipeline.py` and `app/llm_service.py`.
-# business_assistant
-RAG project for Data Sources for Business Advice Assistant 
+هذا المشروع يوفّر أداة RAG متكاملة لقراءة نصوص من قاعدة بيانات SQL، فهرستها في Chroma باستخدام تمثيلات متجهية، ثم استخدام هذه الوثائق كملخص سياقي مع نموذج لغوي لإنتاج خطط أو نصائح تجارية دقيقة.
