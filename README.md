@@ -116,9 +116,4 @@ Visit `http://localhost:8000` to start your business analysis.
 ## 📄 License
 
 Distributed under the MIT License. See `LICENSE` for more information.
-
 ---
-
-## 🌍 Short Arabic Summary
-
-هذا المشروع يوفّر أداة RAG متكاملة لقراءة نصوص من قاعدة بيانات SQL، فهرستها في Chroma باستخدام تمثيلات متجهية، ثم استخدام هذه الوثائق كملخص سياقي مع نموذج لغوي لإنتاج خطط أو نصائح تجارية دقيقة.
