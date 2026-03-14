@@ -36,13 +36,34 @@
 
 ## 🛠️ Tech Stack
 
--   **Core Interface**: [FastAPI](https://fastapi.tiangolo.com/) (Async API backend)
--   **LLM Orchestration**: [LangChain](https://www.langchain.com/)
--   **Vector Database**: [ChromaDB](https://www.trychroma.com/)
--   **Embeddings**: [Hugging Face](https://huggingface.co/) (Sentence-Transformers)
--   **LLM Provider**: [OpenRouter](https://openrouter.ai/) / [OpenAI](https://openai.com/)
--   **Frontend**: HTML5, CSS3 (Modern Glassmorphism), Bootstrap 5
+- **Core Interface**  
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)
+[FastAPI](https://fastapi.tiangolo.com/) — Async API backend
 
+- **LLM Orchestration**  
+![LangChain](https://img.shields.io/badge/LangChain-121212?style=flat-square)
+[LangChain](https://www.langchain.com/)
+
+- **Vector Database**  
+![ChromaDB](https://img.shields.io/badge/ChromaDB-5A5AFA?style=flat-square)
+[ChromaDB](https://www.trychroma.com/)
+
+- **Embeddings**  
+![HuggingFace](https://img.shields.io/badge/HuggingFace-FFD21E?style=flat-square&logo=huggingface&logoColor=black)
+[Hugging Face](https://huggingface.co/) — Sentence Transformers
+
+- **LLM Provider**  
+![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=flat-square&logo=openai&logoColor=white)
+![OpenRouter](https://img.shields.io/badge/OpenRouter-000000?style=flat-square)
+
+[OpenRouter](https://openrouter.ai/) / [OpenAI](https://openai.com/)
+
+- **Frontend**  
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3?style=flat-square&logo=bootstrap&logoColor=white)
+
+HTML5, CSS3 (Glassmorphism UI), Bootstrap 5
 ---
 
 ## 🏗️ Architecture & Workflow
